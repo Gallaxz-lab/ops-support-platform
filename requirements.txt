@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sqlalchemy
+google-genai
+python-dotenv
+itsdangerous
+# for PostgreSQL later: psycopg2-binary

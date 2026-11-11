@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support Desk</title>
+<style>
+:root{--bg:#0e1320;--panel:#151b2b;--line:#252e45;--text:#e4e8f1;--muted:#8791aa;--accent:#7b8cff;
+--high:#ff6b6b;--med:#f2b84b;--low:#5fd0a0;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif}
+#app{display:flex;min-height:100vh}
+aside{width:210px;background:#0a0f1a;border-right:1px solid var(--line);padding:20px 14px;flex-shrink:0;display:flex;flex-direction:column}
+aside h1{font-size:15px;margin:0 8px 22px;font-weight:600}
+aside nav button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:6px;color:var(--muted);margin-bottom:2px}
+aside nav button.on{background:var(--panel);color:var(--text)}
+.me{margin-top:auto;padding:10px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.me b{display:block;color:var(--text);font-weight:600}
+main{flex:1;padding:24px 28px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px}
+.top h2{margin:0;font-size:20px;font-weight:600}
+button,select,input,textarea{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
+button{cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#0a0f1a;font-weight:600}
+button:disabled{opacity:.6;cursor:wait}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.stat b{display:block;font-size:24px;font-weight:600}
+.stat span{color:var(--muted)}
+.banner{background:#ff6b6b14;border:1px solid #ff6b6b55;color:#ffb3b3;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters input{flex:1;min-width:180px}
+.wrap{border:1px solid var(--line);border-radius:8px;overflow-x:auto;background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+tr:last-child td{border-bottom:0}
+td.sub{max-width:340px}
+.link{background:none;border:0;padding:0;color:var(--text);text-align:left;font-weight:500}
+.link:hover{color:var(--accent);text-decoration:underline}
+.badge{padding:2px 9px;border-radius:99px;font-size:12px;border:1px solid;white-space:nowrap}
+.High{color:var(--high);border-color:#ff6b6b66;background:#ff6b6b1a}
+.Medium{color:var(--med);border-color:#f2b84b66;background:#f2b84b1a}
+.Low{color:var(--low);border-color:#5fd0a066;background:#5fd0a01a}
+.esc{color:#fff;background:#c0392b;border-color:#c0392b;margin-left:4px}
+td select{padding:3px 6px}
+.act{background:none;border:0;color:var(--muted);padding:2px 6px}
+.act:hover{color:var(--high)}.act.aibtn:hover{color:var(--accent)}
+.ai{color:var(--muted);font-size:12.5px;margin-top:2px}
+.empty{padding:36px;text-align:center;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+.card h3{margin:0 0 4px;font-size:15px}.card p{margin:8px 0 0;color:#c4cbe0}
+.tag{color:var(--muted);font-size:12.5px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:14px}
+.panel h3{margin:0 0 12px;font-size:15px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bar{display:grid;grid-template-columns:140px 1fr 34px;gap:10px;align-items:center;margin-bottom:8px}
+.bar .track{background:var(--bg);border-radius:4px;height:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.bar b{text-align:right;font-weight:500}
+.cols{display:flex;align-items:flex-end;gap:8px;height:130px}
+.cols div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:12px;color:var(--muted)}
+.cols i{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;margin-bottom:4px}
+pre.report{white-space:pre-wrap;font:inherit;margin:12px 0 0;color:#c4cbe0}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:20px;width:min(560px,94vw);max-height:90vh}
+dialog::backdrop{background:#000a}
+dialog label{display:block;margin-bottom:12px;color:var(--muted)}
+dialog input,dialog textarea,dialog select{width:100%;margin-top:4px;background:var(--bg)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.err{color:var(--high);min-height:18px;margin:0 0 8px}
+.sec{margin:16px 0 6px;font-weight:600}
+.item{border-left:2px solid var(--line);padding:2px 0 2px 10px;margin-bottom:8px;color:#c4cbe0}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.login form{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px;width:min(360px,100%)}
+.login h1{font-size:18px;margin:0 0 4px}.login p{color:var(--muted);margin:0 0 16px}
+.login input{width:100%;margin-bottom:10px;background:var(--bg)}
+[hidden]{display:none!important}
+@media(max-width:760px){#app{flex-direction:column}aside{width:auto;flex-direction:row;overflow-x:auto;padding:10px;gap:6px}
+aside h1,.me{display:none}aside nav{display:flex;gap:4px}main{padding:16px}.grid2{grid-template-columns:1fr}.bar{grid-template-columns:100px 1fr 30px}}
+</style>
+</head>
+<body>
+
+<div class="login" id="login" hidden>
+  <form id="loginForm">
+    <h1>Support Desk</h1><p>Sign in to continue.</p>
+    <input name="username" placeholder="Username" autocomplete="username" required aria-label="Username">
+    <input name="password" type="password" placeholder="Password" autocomplete="current-password" required aria-label="Password">
+    <p class="err" id="loginErr"></p>
+    <button class="primary" style="width:100%" type="submit">Sign in</button>
+    <p style="margin-top:14px;font-size:12.5px">Demo accounts: agent / agent123 and manager / manager123</p>
+  </form>
+</div>
+
+<div id="app" hidden>
+<aside>
+  <h1>Support Desk</h1>
+  <nav>
+    <button data-view="tickets" class="on">Tickets</button>
+    <button data-view="kb">Knowledge base</button>
+    <button data-view="analytics" class="mgr">Analytics</button>
+    <button data-view="automation">Automation</button>
+    <button data-view="activity">Activity log</button>
+  </nav>
+  <div class="me"><b id="meName"></b><span id="meRole"></span><br><button id="logout" style="margin-top:8px">Sign out</button></div>
+</aside>
+<main>
+
+<section id="v-tickets">
+  <div class="top"><h2>Tickets</h2><button class="primary" id="newBtn">New ticket</button></div>
+  <div class="banner" id="escBanner" hidden><span id="escText"></span><button data-view="automation">See escalated tickets</button></div>
+  <div class="stats">
+    <div class="stat"><b id="sTotal">-</b><span>All tickets</span></div>
+    <div class="stat"><b id="sOpen">-</b><span>Open</span></div>
+    <div class="stat"><b id="sHigh">-</b><span>High priority, open</span></div>
+    <div class="stat"><b id="sEsc">-</b><span>Escalated</span></div>
+    <div class="stat"><b id="sDone">-</b><span>Done</span></div>
+  </div>
+  <div class="filters">
+    <input id="q" placeholder="Search subjects" aria-label="Search subjects">
+    <select id="fStatus" aria-label="Status"><option value="">All statuses</option><option>To Do</option><option>In Progress</option><option>Done</option></select>
+    <select id="fPriority" aria-label="Priority"><option value="">All priorities</option><option>High</option><option>Medium</option><option>Low</option></select>
+    <select id="fCompany" aria-label="Company"><option value="">All companies</option></select>
+  </div>
+  <div class="wrap"><table>
+    <thead><tr><th>Created</th><th>Subject</th><th>Category</th><th>Company</th><th>Assignee</th><th>Priority</th><th>Status</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table><div class="empty" id="empty" hidden>No tickets match these filters. Clear a filter or create a new ticket.</div></div>
+</section>
+
+<section id="v-kb" hidden>
+  <div class="top"><h2>Knowledge base</h2><button class="primary" id="newArt">New article</button></div>
+  <div class="filters"><input id="aq" placeholder="Search articles" aria-label="Search articles"></div>
+  <div class="cards" id="arts"></div>
+  <div class="empty" id="artEmpty" hidden>No articles found. Try a different search or write a new article.</div>
+</section>
+
+<section id="v-analytics" hidden>
+  <div class="top"><h2>Analytics</h2><button class="primary" id="repBtn">Generate weekly report</button></div>
+  <div class="panel" id="repBox" hidden><h3>Weekly report <span class="tag" id="repSrc"></span></h3><pre class="report" id="repText"></pre></div>
+  <div class="stats" id="aStats"></div>
+  <div class="grid2">
+    <div class="panel"><h3>Tickets by category</h3><div id="aCat"></div></div>
+    <div class="panel"><h3>Repeat issues, last 30 days</h3><div id="aRepeat"></div></div>
+    <div class="panel"><h3>By priority</h3><div id="aPri"></div><h3 style="margin-top:16px">By status</h3><div id="aSta"></div></div>
+    <div class="panel"><h3>New tickets per week</h3><div class="cols" id="aWeek"></div><h3 style="margin-top:16px">Busiest companies</h3><div id="aCmp"></div></div>
+  </div>
+</section>
+
+<section id="v-automation" hidden>
+  <div class="top"><h2>Automation</h2></div>
+  <div class="grid2">
+    <div class="panel"><h3>AI triage</h3><p id="autoAi" style="margin:0"></p></div>
+    <div class="panel"><h3>Escalation rule</h3><p id="autoEsc" style="margin:0"></p></div>
+  </div>
+  <div class="panel"><h3>Auto-assignment by category</h3><div id="autoOwn"></div></div>
+  <div class="panel"><h3>Escalated tickets</h3><div class="wrap"><table style="min-width:640px"><thead><tr><th>Subject</th><th>Company</th><th>Assignee</th><th>Escalated</th></tr></thead><tbody id="autoRows"></tbody></table><div class="empty" id="autoEmpty" hidden>No escalated tickets right now.</div></div></div>
+</section>
+
+<section id="v-activity" hidden>
+  <div class="top"><h2>Activity log</h2></div>
+  <div class="wrap"><table style="min-width:700px"><thead><tr><th>When</th><th>Who</th><th>Ticket</th><th>What happened</th></tr></thead><tbody id="actRows"></tbody></table></div>
+</section>
+
+</main>
+</div>
+
+<dialog id="dlg"><form id="form" method="dialog">
+  <h3 style="margin-top:0">New ticket</h3>
+  <label>Subject<input name="subject" required></label>
+  <label>Description<textarea name="description" rows="3"></textarea></label>
+  <label>Company<input name="company" required list="companies"></label><datalist id="companies"></datalist>
+  <div class="row">
+    <label>Priority<select name="priority"><option value="Auto">Auto (AI decides)</option><option>Low</option><option selected>Medium</option><option>High</option></select></label>
+    <label>Assignee<select name="assignee" id="newAssignee"></select></label>
+  </div>
+  <p class="err" id="err"></p>
+  <div class="row" style="justify-content:flex-end"><button type="button" data-close="dlg">Cancel</button><button class="primary" type="submit">Create ticket</button></div>
+</form></dialog>
+
+<dialog id="artDlg"><form id="artForm" method="dialog">
+  <h3 style="margin-top:0">New article</h3>
+  <label>Title<input name="title" required></label>
+  <label>Category<select name="category"><option>Hardware</option><option>Software</option><option>Network</option><option>Email</option><option>Security</option><option>Accounts &amp; Access</option><option>Cloud &amp; Servers</option><option>Other</option></select></label>
+  <label>How to fix it<textarea name="content" rows="5" required></textarea></label>
+  <p class="err" id="artErr"></p>
+  <div class="row" style="justify-content:flex-end"><button type="button" data-close="artDlg">Cancel</button><button class="primary" type="submit">Save article</button></div>
+</form></dialog>
+
+<dialog id="detail"><div id="detailBody"></div></dialog>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dt=d=>new Date(d+"Z");
+const fmt=d=>dt(d).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
+const fmtT=d=>dt(d).toLocaleString(undefined,{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+let me=null,aiOn=false,agents=[],escHours=2,timer,view="tickets";
+const isMgr=()=>me&&me.role==="manager";
+
+async function api(path,opt={}){
+  if(opt.body&&typeof opt.body!=="string"){opt.body=JSON.stringify(opt.body);opt.headers={"Content-Type":"application/json"}}
+  const r=await fetch(path,opt);
+  if(r.status===401&&!path.endsWith("/api/login")){showLogin();throw new Error("Please sign in")}
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.detail||"Request failed")}
+  return r.status===204?null:r.json();
+}
+function showLogin(){$("app").hidden=true;$("login").hidden=false}
+async function boot(){
+  try{me=await api("/api/me")}catch(e){return showLogin()}
+  $("login").hidden=true;$("app").hidden=false;
+  $("meName").textContent=me.name;$("meRole").textContent=me.role==="manager"?"Manager":"Agent";
+  document.querySelectorAll(".mgr").forEach(e=>e.hidden=!isMgr());
+  go("tickets");
+}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();$("loginErr").textContent="";
+  try{await api("/api/login",{method:"POST",body:Object.fromEntries(new FormData(e.target))});e.target.reset();boot()}
+  catch(err){$("loginErr").textContent=err.message}
+});
+$("logout").onclick=async()=>{await api("/api/logout",{method:"POST"}).catch(()=>{});me=null;showLogin()};
+
+function go(v){
+  view=v;
+  ["tickets","kb","analytics","automation","activity"].forEach(n=>$("v-"+n).hidden=n!==v);
+  document.querySelectorAll("aside nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===v));
+  ({tickets:()=>{loadSummary();loadTickets()},kb:loadArticles,analytics:loadAnalytics,automation:loadAutomation,activity:loadActivity})[v]();
+}
+document.addEventListener("click",e=>{
+  const v=e.target.dataset&&e.target.dataset.view;if(v)go(v);
+  const c=e.target.dataset&&e.target.dataset.close;if(c)$(c).close();
+});
+
+/* ---------- tickets ---------- */
+async function loadSummary(){
+  const s=await api("/api/summary");
+  aiOn=s.ai_enabled;agents=s.agents;escHours=s.escalation_hours;
+  $("sTotal").textContent=s.total;$("sOpen").textContent=s.open;$("sHigh").textContent=s.high_open;$("sEsc").textContent=s.escalated;$("sDone").textContent=s.done;
+  $("escBanner").hidden=s.escalated===0;
+  $("escText").textContent=s.escalated+(s.escalated===1?" ticket has":" tickets have")+" been escalated because High priority work was not started within "+escHours+" hours.";
+  const keep=$("fCompany").value;
+  $("fCompany").innerHTML='<option value="">All companies</option>'+s.companies.map(c=>`<option>${esc(c)}</option>`).join("");
+  $("fCompany").value=keep;
+  $("companies").innerHTML=s.companies.map(c=>`<option value="${esc(c)}">`).join("");
+  $("newAssignee").innerHTML=agents.map(a=>`<option ${a==="Unassigned"?"selected":""}>${esc(a)}</option>`).join("");
+}
+async function loadTickets(){
+  const p=new URLSearchParams({q:$("q").value,status:$("fStatus").value,priority:$("fPriority").value,company:$("fCompany").value});
+  const list=await api("/api/tickets?"+p);
+  $("empty").hidden=list.length>0;
+  $("rows").innerHTML=list.map(t=>`<tr>
+    <td>${fmt(t.created_at)}</td>
+    <td class="sub"><button class="link" data-open="${t.id}">${esc(t.subject)}</button>${t.ai_summary?`<div class="ai">${esc(t.ai_summary)}</div>`:""}</td>
+    <td>${esc(t.category)}</td><td>${esc(t.company)}</td><td>${esc(t.assignee)}</td>
+    <td><span class="badge ${t.priority}">${t.priority}</span>${t.escalated?'<span class="badge esc">Escalated</span>':""}</td>
+    <td><select data-id="${t.id}" aria-label="Status for ${esc(t.subject)}">${["To Do","In Progress","Done"].map(s=>`<option ${s===t.status?"selected":""}>${s}</option>`).join("")}</select></td>
+    <td style="white-space:nowrap"><button class="act aibtn" data-ai="${t.id}">Analyze</button>${isMgr()?`<button class="act" data-del="${t.id}">Delete</button>`:""}</td></tr>`).join("");
+}
+$("rows").addEventListener("change",async e=>{
+  const id=e.target.dataset.id;if(!id)return;
+  const body={status:e.target.value};
+  if(body.status==="Done"){const note=prompt("What fixed it? This note will help with similar tickets later. You can leave it empty.");if(note)body.resolution=note}
+  await api("/api/tickets/"+id,{method:"PATCH",body});loadSummary();loadTickets();
+});
+$("rows").addEventListener("click",async e=>{
+  const o=e.target.dataset.open;if(o)return openDetail(o);
+  const aid=e.target.dataset.ai;
+  if(aid){const b=e.target;b.textContent="Analyzing...";b.disabled=true;
+    try{await api("/api/tickets/"+aid+"/analyze",{method:"POST"});loadSummary()}catch(err){alert(err.message)}
+    loadTickets();return}
+  const id=e.target.dataset.del;
+  if(id&&confirm("Delete this ticket? This cannot be undone.")){await api("/api/tickets/"+id,{method:"DELETE"});loadSummary();loadTickets()}
+});
+["fStatus","fPriority","fCompany"].forEach(i=>$(i).addEventListener("change",loadTickets));
+$("q").addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(loadTickets,250)});
+$("newBtn").onclick=()=>{$("err").textContent="";$("form").priority.value=aiOn?"Auto":"Medium";$("dlg").showModal()};
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  try{await api("/api/tickets",{method:"POST",body:Object.fromEntries(new FormData($("form")))});$("form").reset();$("dlg").close();loadSummary();loadTickets()}
+  catch(err){$("err").textContent=err.message}
+});
+
+/* ---------- ticket detail ---------- */
+async function openDetail(id){
+  const d=await api("/api/tickets/"+id),t=d.ticket;
+  const sel=(name,opts,val)=>`<select name="${name}">${opts.map(o=>`<option ${o===val?"selected":""}>${esc(o)}</option>`).join("")}</select>`;
+  $("detailBody").innerHTML=`
+    <h3 style="margin:0 0 4px">${esc(t.subject)}</h3>
+    <div class="tag">${esc(t.company)} · ${esc(t.category)} · opened ${fmt(t.created_at)}${t.escalated?" · escalated":""}</div>
+    ${t.description?`<p>${esc(t.description)}</p>`:""}
+    ${t.ai_summary?`<div class="ai" style="font-size:13.5px;margin:8px 0">AI summary: ${esc(t.ai_summary)}</div>`:""}
+    <form id="dForm" style="margin-top:12px">
+      <div class="row"><label>Status${sel("status",["To Do","In Progress","Done"],t.status)}</label>
+      <label>Priority${sel("priority",["Low","Medium","High"],t.priority)}</label>
+      <label>Assignee${sel("assignee",agents,t.assignee)}</label></div>
+      <label>Resolution note<textarea name="resolution" rows="2" placeholder="What fixed it?">${esc(t.resolution)}</textarea></label>
+      <div class="row" style="justify-content:flex-end"><button type="button" data-close="detail">Close</button><button class="primary" type="submit">Save changes</button></div>
+    </form>
+    <div class="sec">Suggested articles</div>
+    ${d.articles.length?d.articles.map(a=>`<div class="item"><b>${esc(a.title)}</b><div>${esc(a.content)}</div></div>`).join(""):'<div class="tag">No matching articles yet.</div>'}
+    <div class="sec">Similar solved tickets</div>
+    ${d.past.length?d.past.map(p=>`<div class="item"><b>${esc(p.subject)}</b><div>${esc(p.resolution||"No resolution note saved.")}</div></div>`).join(""):'<div class="tag">No similar solved tickets yet.</div>'}
+    <div class="sec">Timeline</div>
+    ${d.timeline.map(a=>`<div class="item"><span class="tag">${fmtT(a.created_at)} · ${esc(a.actor)}</span><div>${esc(a.action)}</div></div>`).join("")}`;
+  $("dForm").addEventListener("submit",async e=>{
+    e.preventDefault();
+    await api("/api/tickets/"+id,{method:"PATCH",body:Object.fromEntries(new FormData(e.target))});
+    $("detail").close();loadSummary();loadTickets();
+  });
+  $("detail").showModal();
+}
+
+/* ---------- knowledge base ---------- */
+async function loadArticles(){
+  const list=await api("/api/articles?q="+encodeURIComponent($("aq").value));
+  $("artEmpty").hidden=list.length>0;
+  $("arts").innerHTML=list.map(a=>`<div class="card"><h3>${esc(a.title)}</h3><span class="tag">${esc(a.category)}</span><p>${esc(a.content)}</p>${isMgr()?`<button class="act" data-delart="${a.id}" style="margin-top:8px;padding-left:0">Delete</button>`:""}</div>`).join("");
+}
+$("aq").addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(loadArticles,250)});
+$("arts").addEventListener("click",async e=>{
+  const id=e.target.dataset.delart;
+  if(id&&confirm("Delete this article?")){await api("/api/articles/"+id,{method:"DELETE"});loadArticles()}
+});
+$("newArt").onclick=()=>{$("artErr").textContent="";$("artDlg").showModal()};
+$("artForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  try{await api("/api/articles",{method:"POST",body:Object.fromEntries(new FormData($("artForm")))});$("artForm").reset();$("artDlg").close();loadArticles()}
+  catch(err){$("artErr").textContent=err.message}
+});
+
+/* ---------- analytics ---------- */
+function bars(obj){
+  const max=Math.max(1,...Object.values(obj));
+  return Object.entries(obj).map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><div class="track"><i style="width:${v/max*100}%"></i></div><b>${v}</b></div>`).join("")||'<div class="tag">Nothing to show yet.</div>';
+}
+async function loadAnalytics(){
+  const a=await api("/api/analytics");
+  $("aStats").innerHTML=[["Total tickets",a.total],["Open",a.open],["Escalated and open",a.escalated_open],["Avg. resolution (hours)",a.avg_resolution_hours]]
+    .map(([l,v])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+  $("aCat").innerHTML=bars(a.by_category);$("aPri").innerHTML=bars(a.by_priority);$("aSta").innerHTML=bars(a.by_status);$("aCmp").innerHTML=bars(a.by_company);
+  $("aRepeat").innerHTML=a.repeat_issues.length?a.repeat_issues.map(r=>`<div class="bar"><span>${esc(r.category)}</span><div class="track"><i style="width:${r.count/a.repeat_issues[0].count*100}%"></i></div><b>${r.count}</b></div>`).join("")+'<div class="tag">Categories with 2 or more tickets in 30 days point to a recurring problem.</div>':'<div class="tag">No repeat issues in the last 30 days.</div>';
+  const mx=Math.max(1,...a.weekly.map(w=>w.count));
+  $("aWeek").innerHTML=a.weekly.map(w=>`<div title="Week of ${esc(w.label)}"><i style="height:${w.count/mx*100}px"></i>${w.count}</div>`).join("");
+}
+$("repBtn").onclick=async()=>{
+  const b=$("repBtn");b.textContent="Writing report...";b.disabled=true;
+  try{const r=await api("/api/report",{method:"POST"});$("repBox").hidden=false;$("repText").textContent=r.report;$("repSrc").textContent=r.source==="ai"?"(written by AI)":"(AI unavailable, showing the numbers)"}
+  catch(err){alert(err.message)}
+  b.textContent="Generate weekly report";b.disabled=false;
+};
+
+/* ---------- automation + activity ---------- */
+async function loadAutomation(){
+  const a=await api("/api/automation");
+  $("autoAi").textContent=a.ai_enabled?"On. New tickets get a category, priority and one-line summary automatically.":"Off. Add GEMINI_API_KEY to the .env file to turn on AI triage.";
+  $("autoEsc").textContent="A High priority ticket that is still To Do after "+a.escalation_hours+" hours is flagged as Escalated and logged for the manager.";
+  $("autoOwn").innerHTML=Object.entries(a.category_owner).map(([c,o])=>`<div class="bar" style="grid-template-columns:160px 1fr"><span>${esc(c)}</span><span>${esc(o)}</span></div>`).join("");
+  $("autoEmpty").hidden=a.escalated.length>0;
+  $("autoRows").innerHTML=a.escalated.map(t=>`<tr><td>${esc(t.subject)}</td><td>${esc(t.company)}</td><td>${esc(t.assignee)}</td><td>${fmtT(t.escalated_at)}</td></tr>`).join("");
+}
+async function loadActivity(){
+  const list=await api("/api/activity");
+  $("actRows").innerHTML=list.map(a=>`<tr><td style="white-space:nowrap">${fmtT(a.created_at)}</td><td>${esc(a.actor)}</td><td>${esc(a.subject)}</td><td>${esc(a.action)}</td></tr>`).join("");
+}
+boot();
+</script>
+</body>
+</html>
